@@ -1,0 +1,13 @@
+{
+  "name": "nasro-gym-app",
+  "version": "1.0.0",
+  "main": "index.html",
+  "window": {
+    "title": "NASRO GYM",
+    "width": 1200,
+    "height": 800,
+    "icon": "icon.png",
+    "toolbar": false,
+    "frame": true
+  }
+}
