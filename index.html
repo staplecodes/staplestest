@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NASRO GYM</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+  body {
+    background: radial-gradient(circle at 20% 0%, #1e3a5f 0%, #0a0e27 50%, #000 100%);
+    min-height: 100vh; color: #fff; padding: 24px;
+    background-attachment: fixed;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(circle at 80% 20%, rgba(255,107,53,0.15), transparent 50%),
+      radial-gradient(circle at 20% 80%, rgba(0,212,255,0.1), transparent 50%);
+    z-index: 0;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; }
+
+  header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 28px; flex-wrap: wrap; gap: 16px;
+    padding: 20px 28px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+  }
+  header h1 { font-size: 28px; font-weight: 900; display: flex; align-items: center; gap: 12px; letter-spacing: 1px; }
+  header h1 .logo {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: linear-gradient(135deg, #ff6b35, #f7931e);
+    display: flex; align-items: center; justify-content: center; font-size: 28px;
+    box-shadow: 0 8px 24px rgba(255,107,53,0.4);
+    cursor: pointer; overflow: hidden; transition: transform 0.2s;
+    position: relative; flex-shrink: 0;
+  }
+  header h1 .logo:hover { transform: scale(1.08); }
+  header h1 .logo:hover::after {
+    content: '📷'; position: absolute; inset: 0;
+    background: rgba(0,0,0,0.5); display: flex;
+    align-items: center; justify-content: center; font-size: 18px;
+  }
+  header h1 .logo img { width: 100%; height: 100%; object-fit: cover; }
+  header h1 .brand { background: linear-gradient(135deg, #ff6b35, #ffd93d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+  input, select, button, textarea {
+    padding: 12px 16px; border: none; border-radius: 12px; font-size: 14px; outline: none;
+    font-family: 'Cairo', sans-serif;
+  }
+  input[type="text"], input[type="number"], input[type="email"], input[type="tel"], input[type="date"], select, textarea {
+    background: rgba(255,255,255,0.06); color: #fff; border: 1px solid rgba(255,255,255,0.1);
+    transition: all 0.25s;
+  }
+  input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.4); }
+  input:focus, select:focus, textarea:focus {
+    border-color: #ff6b35; background: rgba(255,255,255,0.1);
+    box-shadow: 0 0 0 4px rgba(255,107,53,0.15);
+  }
+  button {
+    background: linear-gradient(135deg, #ff6b35, #f7931e); color: #fff; font-weight: 700; cursor: pointer;
+    transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
+  }
+  button:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(255,107,53,0.4); }
+  button.secondary { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); }
+  button.secondary:hover { background: rgba(255,255,255,0.15); box-shadow: none; }
+  button.danger { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+  button.danger:hover { box-shadow: 0 10px 24px rgba(231,76,60,0.4); }
+  button.whatsapp { background: linear-gradient(135deg, #25d366, #128c7e); }
+  button.whatsapp:hover { box-shadow: 0 10px 24px rgba(37,211,102,0.4); }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .stat {
+    background: rgba(255,255,255,0.04); padding: 18px; border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(10px);
+    text-align: center; transition: all 0.2s; cursor: pointer;
+    user-select: none;
+  }
+  .stat:hover { transform: translateY(-4px); background: rgba(255,255,255,0.08); }
+  .stat.selected { border-color: #ff6b35; background: rgba(255,107,53,0.12); box-shadow: 0 0 0 3px rgba(255,107,53,0.25); }
+  .stat .num { font-size: 26px; font-weight: 900; }
+  .stat.total .num { color: #00d4ff; }
+  .stat.active .num { color: #2ecc71; }
+  .stat.soon .num { color: #f7931e; }
+  .stat.expired .num { color: #e74c3c; }
+  .stat.revenue { cursor: default; }
+  .stat.revenue .num { color: #ffd93d; font-size: 22px; }
+  .stat.revenue:hover { transform: none; }
+  .stat .lbl { font-size: 13px; opacity: 0.7; margin-top: 4px; font-weight: 600; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+  .card {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px; padding: 20px;
+    animation: slideUp 0.4s ease;
+    transition: transform 0.25s, border-color 0.25s;
+    position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; right: 0; width: 100%; height: 4px;
+    background: linear-gradient(90deg, #ff6b35, #ffd93d);
+  }
+  .card:hover { transform: translateY(-4px); border-color: rgba(255,107,53,0.3); }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+  .card .top { display: flex; gap: 14px; align-items: center; margin-bottom: 14px; }
+  .card .photo-wrap { flex-shrink: 0; }
+  .card img.avatar, .card .no-photo {
+    width: 72px; height: 72px; border-radius: 50%;
+    border: 3px solid transparent;
+    background: linear-gradient(#0a0e27, #0a0e27) padding-box,
+                linear-gradient(135deg, #ff6b35, #ffd93d) border-box;
+  }
+  .card img.avatar { object-fit: cover; cursor: zoom-in; transition: transform 0.2s; }
+  .card img.avatar:hover { transform: scale(1.08); }
+  .card .no-photo { display: flex; align-items: center; justify-content: center; font-size: 30px; color: rgba(255,255,255,0.5); }
+  .card h3 { font-size: 18px; font-weight: 700; margin-bottom: 4px; word-break: break-word; }
+  .card .meta { font-size: 12px; opacity: 0.65; }
+
+  .badge {
+    display: inline-block; padding: 4px 12px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; margin-top: 8px;
+  }
+  .badge.active { background: rgba(46,204,113,0.2); color: #2ecc71; border: 1px solid rgba(46,204,113,0.4); }
+  .badge.soon { background: rgba(247,147,30,0.2); color: #f7931e; border: 1px solid rgba(247,147,30,0.4); }
+  .badge.expired { background: rgba(231,76,60,0.2); color: #e74c3c; border: 1px solid rgba(231,76,60,0.4); }
+
+  .info { font-size: 13px; margin: 10px 0; line-height: 1.9; }
+  .info .row-info { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed rgba(255,255,255,0.08); gap: 8px; }
+  .info .row-info:last-child { border: none; }
+  .info .label { opacity: 0.6; flex-shrink: 0; }
+  .info .value { font-weight: 600; color: #ffd93d; text-align: left; word-break: break-word; }
+
+  .actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+  .actions button { padding: 8px 10px; font-size: 12px; flex: 1; justify-content: center; min-width: 0; }
+
+  .modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: none;
+    align-items: center; justify-content: center; z-index: 100; padding: 20px;
+    backdrop-filter: blur(8px);
+  }
+  .modal.open { display: flex; animation: fadeIn 0.2s; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal-content {
+    background: linear-gradient(135deg, #141b2e, #0a0e27);
+    padding: 28px; border-radius: 24px; width: 100%; max-width: 520px;
+    max-height: 90vh; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1);
+    animation: slideUp 0.3s ease;
+  }
+  .modal h2 { margin-bottom: 20px; font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+
+  .form-group { margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 13px; opacity: 0.85; font-weight: 600; }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; }
+  textarea { resize: vertical; min-height: 70px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .photo-upload {
+    border: 2px dashed rgba(255,255,255,0.2); border-radius: 14px;
+    padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s;
+    position: relative;
+  }
+  .photo-upload:hover { border-color: #ff6b35; background: rgba(255,107,53,0.05); }
+  .photo-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .photo-upload .icon { font-size: 32px; margin-bottom: 6px; }
+  .photo-upload .txt { font-size: 13px; opacity: 0.7; }
+  .preview {
+    margin-top: 10px; width: 90px; height: 90px; border-radius: 50%;
+    object-fit: cover; display: none; border: 3px solid #ff6b35;
+  }
+
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-start; margin-top: 20px; }
+  .modal-actions button { flex: 1; padding: 14px; font-size: 15px; justify-content: center; }
+
+  .extend-preview {
+    background: rgba(255,107,53,0.1); border: 1px solid rgba(255,107,53,0.3);
+    border-radius: 12px; padding: 12px; margin-top: 10px; font-size: 13px;
+  }
+  .extend-preview .label { opacity: 0.7; }
+  .extend-preview .value { font-weight: 700; color: #ffd93d; }
+
+  .lightbox {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.92); display: none;
+    align-items: center; justify-content: center; z-index: 200; padding: 20px;
+    backdrop-filter: blur(10px); cursor: zoom-out;
+  }
+  .lightbox.open { display: flex; animation: fadeIn 0.2s; }
+  .lightbox img {
+    max-width: 90vw; max-height: 90vh; border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    border: 3px solid #ff6b35;
+    animation: slideUp 0.3s ease;
+  }
+  .lightbox .close-btn {
+    position: absolute; top: 20px; left: 20px; width: 44px; height: 44px;
+    border-radius: 50%; background: rgba(255,255,255,0.1); color: #fff;
+    font-size: 20px; border: 1px solid rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .lightbox .close-btn:hover { background: rgba(255,107,53,0.4); transform: rotate(90deg); }
+
+  .empty {
+    text-align: center; padding: 60px 20px; opacity: 0.6;
+    grid-column: 1 / -1;
+  }
+  .empty .icon { font-size: 60px; margin-bottom: 12px; }
+  .empty .txt { font-size: 16px; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
+    background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff;
+    padding: 14px 24px; border-radius: 12px; font-weight: 700; z-index: 300;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4); opacity: 0; transition: all 0.3s;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.error { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+
+  @media (max-width: 480px) {
+    body { padding: 14px; }
+    header { padding: 16px; }
+    header h1 { font-size: 22px; }
+    .controls input[type="text"] { flex: 1; min-width: 0; }
+    .actions button { font-size: 11px; padding: 8px 6px; }
+  }
+
+  @media print {
+    body { background: #fff; color: #000; }
+    body::before, header, .stats, .actions, .controls { display: none !important; }
+    .card { break-inside: avoid; border: 1px solid #000; background: #fff; color: #000; box-shadow: none; }
+    .card h3, .card .meta, .info .label, .info .value { color: #000 !important; }
+  }
+
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+  ::-webkit-scrollbar-thumb { background: linear-gradient(#ff6b35, #f7931e); border-radius: 10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>
+    <span class="logo" title="اضغط لتغيير الشعار" onclick="document.getElementById('logoInput').click()">
+      <span id="logoDefault">🏋️</span>
+      <img id="logoImg" style="display:none" alt="logo" />
+    </span>
+    <input type="file" id="logoInput" accept="image/*" style="display:none" />
+    <span class="brand">NASRO GYM</span>
+  </h1>
+  <div class="controls">
+    <input type="text" id="search" placeholder="🔍 بحث بالاسم أو الهاتف..." />
+    <select id="sortBy" title="ترتيب">
+      <option value="urgent">⏳ الأقرب انتهاءً</option>
+      <option value="newest">🆕 الأحدث</option>
+      <option value="name">🔤 الاسم</option>
+      <option value="paid">💰 المدفوع</option>
+    </select>
+    <button onclick="openModal()">➕ إضافة مشترك</button>
+    <button class="secondary" onclick="exportData()" title="تصدير نسخة احتياطية">📤</button>
+    <button class="secondary" onclick="document.getElementById('importFile').click()" title="استيراد نسخة احتياطية">📥</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" />
+    <button class="secondary" onclick="window.print()" title="طباعة">🖨️</button>
+  </div>
+</header>
+
+<div class="stats" id="stats"></div>
+<div class="grid" id="grid"></div>
+
+<!-- Add/Edit Modal -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h2 id="modalTitle">✨ إضافة مشترك جديد</h2>
+    <form id="form">
+      <input type="hidden" id="editId" />
+
+      <div class="form-group">
+        <label>الصورة الشخصية</label>
+        <div class="photo-upload">
+          <div class="icon">📷</div>
+          <div class="txt">اضغط لاختيار صورة من جهازك</div>
+          <input type="file" id="photo" accept="image/*" />
+        </div>
+        <img id="preview" class="preview" alt="preview" />
+      </div>
+
+      <div class="form-group">
+        <label>الاسم الكامل *</label>
+        <input type="text" id="name" required placeholder="مثال: محمد أحمد" />
+      </div>
+
+      <div class="row">
+        <div class="form-group"><label>رقم الهاتف</label><input type="tel" id="phone" placeholder="0600000000" /></div>
+        <div class="form-group"><label>العمر</label><input type="number" id="age" min="10" max="100" /></div>
+      </div>
+
+      <div class="form-group">
+        <label>تاريخ البداية *</label>
+        <input type="date" id="startDate" required />
+      </div>
+
+      <div class="row">
+        <div class="form-group">
+          <label>عدد الأشهر</label>
+          <input type="number" id="months" min="0" max="36" value="1" />
+        </div>
+        <div class="form-group">
+          <label>عدد الأيام</label>
+          <input type="number" id="days" min="0" max="365" value="0" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>المبلغ المدفوع (درهم)</label>
+        <input type="number" id="paid" min="0" step="0.01" value="0" />
+      </div>
+
+      <div class="form-group">
+        <label>ملاحظات</label>
+        <textarea id="notes" placeholder="أي ملاحظات إضافية..."></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button type="submit">💾 حفظ</button>
+        <button type="button" class="secondary" onclick="closeModal()">إلغاء</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Extend Modal -->
+<div class="modal" id="extendModal">
+  <div class="modal-content">
+    <h2>➕ تمديد الاشتراك</h2>
+    <input type="hidden" id="extendId" />
+    <div class="row">
+      <div class="form-group">
+        <label>عدد الأشهر</label>
+        <input type="number" id="extMonths" min="0" max="36" value="1" />
+      </div>
+      <div class="form-group">
+        <label>عدد الأيام</label>
+        <input type="number" id="extDays" min="0" max="365" value="0" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label>مبلغ مدفوع إضافي (درهم)</label>
+      <input type="number" id="extPaid" min="0" step="0.01" value="0" />
+    </div>
+    <div class="extend-preview" id="extendPreview"></div>
+    <div class="modal-actions">
+      <button onclick="confirmExtend()">✅ تأكيد التمديد</button>
+      <button class="secondary" onclick="closeExtendModal()">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <div class="close-btn" onclick="closeLightbox()">✕</div>
+  <img id="lightboxImg" src="" alt="" onclick="event.stopPropagation()" />
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const STORAGE_KEY = 'gym_subscribers_ar_v1';
+  const LOGO_KEY = 'gym_logo_v1';
+  let subscribers = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  let photoData = '';
+  let currentFilter = 'all';
+  let currentSort = 'urgent';
+
+  const $ = id => document.getElementById(id);
+
+  // ---------- Utilities ----------
+  const esc = str => String(str ?? '').replace(/[&<>"']/g, c => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+
+  function toast(msg, isError = false) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.toggle('error', isError);
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  function save() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(subscribers));
+      render();
+    } catch (e) {
+      toast('⚠️ مساحة التخزين ممتلئة! قم بتصدير نسخة احتياطية', true);
+    }
+  }
+
+  // Compress image to ~200x200 JPEG to avoid localStorage overflow
+  function compressImage(file, maxSize = 300, quality = 0.75) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > height) {
+            if (width > maxSize) { height = (height * maxSize) / width; width = maxSize; }
+          } else {
+            if (height > maxSize) { width = (width * maxSize) / height; height = maxSize; }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width; canvas.height = height;
+          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function addDuration(dateStr, months, days) {
+    const d = new Date(dateStr);
+    d.setMonth(d.getMonth() + (Number(months) || 0));
+    d.setDate(d.getDate() + (Number(days) || 0));
+    return d.toISOString().split('T')[0];
+  }
+
+  function formatDuration(months, days) {
+    const m = Number(months) || 0;
+    const dy = Number(days) || 0;
+    const parts = [];
+    if (m > 0) parts.push(m + ' شهر');
+    if (dy > 0) parts.push(dy + ' يوم');
+    return parts.join(' و ') || '—';
+  }
+
+  function daysBetween(endStr) {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const end = new Date(endStr); end.setHours(0, 0, 0, 0);
+    return Math.round((end - today) / 86400000);
+  }
+
+  function statusOf(endStr) {
+    const d = daysBetween(endStr);
+    if (d < 0) return { label: 'منتهي', cls: 'expired' };
+    if (d <= 7) return { label: 'ينتهي قريباً', cls: 'soon' };
+    return { label: 'نشط', cls: 'active' };
+  }
+
+  function formatDate(d) {
+    try {
+      return new Date(d).toLocaleDateString('ar-MA', { year: 'numeric', month: 'short', day: 'numeric' });
+    } catch { return d; }
+  }
+
+  // ---------- Logo ----------
+  const savedLogo = localStorage.getItem(LOGO_KEY);
+  if (savedLogo) {
+    $('logoImg').src = savedLogo;
+    $('logoImg').style.display = 'block';
+    $('logoDefault').style.display = 'none';
+  }
+  $('logoInput').addEventListener('change', async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const compressed = await compressImage(file, 200, 0.85);
+      localStorage.setItem(LOGO_KEY, compressed);
+      $('logoImg').src = compressed;
+      $('logoImg').style.display = 'block';
+      $('logoDefault').style.display = 'none';
+      toast('✅ تم تحديث الشعار');
+    } catch { toast('⚠️ فشل تحميل الشعار', true); }
+  });
+
+  // ---------- Add / Edit Modal ----------
+  function openModal(id = null) {
+    $('form').reset();
+    $('preview').style.display = 'none';
+    photoData = '';
+    $('editId').value = '';
+    $('startDate').value = new Date().toISOString().split('T')[0];
+
+    if (id) {
+      const s = subscribers.find(x => x.id === id);
+      if (!s) return;
+      $('modalTitle').textContent = '✏️ تعديل بيانات المشترك';
+      $('editId').value = s.id;
+      $('name').value = s.name;
+      $('phone').value = s.phone || '';
+      $('age').value = s.age || '';
+      $('startDate').value = s.startDate;
+      $('months').value = s.months || 0;
+      $('days').value = s.days || 0;
+      $('paid').value = s.paid || 0;
+      $('notes').value = s.notes || '';
+      photoData = s.photo || '';
+      if (photoData) { $('preview').src = photoData; $('preview').style.display = 'block'; }
+    } else {
+      $('modalTitle').textContent = '✨ إضافة مشترك جديد';
+    }
+    $('modal').classList.add('open');
+    setTimeout(() => $('name').focus(), 100);
+  }
+  function closeModal() { $('modal').classList.remove('open'); }
+
+  $('photo').addEventListener('change', async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      photoData = await compressImage(file);
+      $('preview').src = photoData;
+      $('preview').style.display = 'block';
+    } catch { toast('⚠️ فشل تحميل الصورة', true); }
+  });
+
+  $('form').addEventListener('submit', e => {
+    e.preventDefault();
+    const editId = $('editId').value;
+    const startDate = $('startDate').value;
+    const months = Number($('months').value) || 0;
+    const days = Number($('days').value) || 0;
+    if (months === 0 && days === 0) { toast('⚠️ الرجاء إدخال عدد الأشهر أو الأيام', true); return; }
+    const entry = {
+      id: editId || Date.now().toString(),
+      name: $('name').value.trim(),
+      phone: $('phone').value.trim(),
+      age: $('age').value,
+      startDate,
+      months,
+      days,
+      endDate: addDuration(startDate, months, days),
+      paid: Number($('paid').value) || 0,
+      notes: $('notes').value.trim(),
+      photo: photoData,
+      createdAt: editId ? (subscribers.find(s => s.id === editId)?.createdAt || Date.now()) : Date.now()
+    };
+    if (editId) subscribers = subscribers.map(s => s.id === editId ? entry : s);
+    else subscribers.push(entry);
+    save();
+    closeModal();
+    toast(editId ? '✅ تم التحديث' : '✅ تم إضافة المشترك');
+  });
+
+  // ---------- Extend Modal ----------
+  let extendingId = null;
+  function openExtend(id) {
+    const s = subscribers.find(x => x.id === id);
+    if (!s) return;
+    extendingId = id;
+    $('extendId').value = id;
+    $('extMonths').value = 1;
+    $('extDays').value = 0;
+    $('extPaid').value = 0;
+    updateExtendPreview();
+    $('extendModal').classList.add('open');
+  }
+  function closeExtendModal() { $('extendModal').classList.remove('open'); extendingId = null; }
+  function updateExtendPreview() {
+    const s = subscribers.find(x => x.id === extendingId);
+    if (!s) return;
+    const m = Number($('extMonths').value) || 0;
+    const d = Number($('extDays').value) || 0;
+    const base = daysBetween(s.endDate) < 0 ? new Date().toISOString().split('T')[0] : s.endDate;
+    const newEnd = addDuration(base, m, d);
+    $('extendPreview').innerHTML =
+      `<div><span class="label">المشترك:</span> <span class="value">${esc(s.name)}</span></div>` +
+      `<div><span class="label">نهاية حالية:</span> <span class="value">${formatDate(s.endDate)}</span></div>` +
+      `<div><span class="label">نهاية جديدة:</span> <span class="value">${formatDate(newEnd)}</span></div>`;
+  }
+  $('extMonths').addEventListener('input', updateExtendPreview);
+  $('extDays').addEventListener('input', updateExtendPreview);
+
+  function confirmExtend() {
+    const s = subscribers.find(x => x.id === extendingId);
+    if (!s) return;
+    const m = Number($('extMonths').value) || 0;
+    const d = Number($('extDays').value) || 0;
+    const p = Number($('extPaid').value) || 0;
+    if (m <= 0 && d <= 0) { toast('⚠️ أدخل أشهر أو أيام', true); return; }
+    const base = daysBetween(s.endDate) < 0 ? new Date().toISOString().split('T')[0] : s.endDate;
+    s.endDate = addDuration(base, m, d);
+    s.months = (Number(s.months) || 0) + m;
+    s.days = (Number(s.days) || 0) + d;
+    s.paid = (Number(s.paid) || 0) + p;
+    save();
+    closeExtendModal();
+    toast('✅ تم تمديد الاشتراك');
+  }
+
+  // ---------- Delete ----------
+  function remove(id) {
+    const s = subscribers.find(x => x.id === id);
+    if (!s) return;
+    if (!confirm(`حذف المشترك "${s.name}" نهائياً؟`)) return;
+    subscribers = subscribers.filter(x => x.id !== id);
+    save();
+    toast('🗑️ تم الحذف');
+  }
+
+  // ---------- WhatsApp reminder ----------
+  function whatsapp(id) {
+    const s = subscribers.find(x => x.id === id);
+    if (!s || !s.phone) { toast('⚠️ لا يوجد رقم هاتف', true); return; }
+    let phone = s.phone.replace(/\D/g, '');
+    if (phone.startsWith('0')) phone = '212' + phone.substring(1); // Morocco
+    const st = statusOf(s.endDate);
+    let msg;
+    if (st.cls === 'expired') {
+      msg = `مرحباً ${s.name}، نذكركم بأن اشتراككم في NASRO GYM قد انتهى بتاريخ ${formatDate(s.endDate)}. نرجو التجديد. شكراً لكم 💪`;
+    } else if (st.cls === 'soon') {
+      msg = `مرحباً ${s.name}، اشتراككم في NASRO GYM سينتهي بتاريخ ${formatDate(s.endDate)}. نرجو التجديد في أقرب وقت. 💪`;
+    } else {
+      msg = `مرحباً ${s.name}، شكراً لاشتراككم في NASRO GYM. اشتراككم ساري حتى ${formatDate(s.endDate)}. 💪`;
+    }
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+  }
+
+  // ---------- Lightbox ----------
+  function openLightbox(id) {
+    const s = subscribers.find(x => x.id === id);
+    if (!s || !s.photo) return;
+    $('lightboxImg').src = s.photo;
+    $('lightbox').classList.add('open');
+  }
+  function closeLightbox() { $('lightbox').classList.remove('open'); }
+
+  // ---------- Filters / Sort ----------
+  function setFilter(f) {
+    currentFilter = (currentFilter === f) ? 'all' : f;
+    render();
+  }
+  $('sortBy').addEventListener('change', e => { currentSort = e.target.value; render(); });
+
+  // ---------- Export / Import ----------
+  function exportData() {
+    const data = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      subscribers,
+      logo: localStorage.getItem(LOGO_KEY) || null
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `nasro-gym-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('📤 تم تصدير النسخة الاحتياطية');
+  }
+
+  $('importFile').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (!Array.isArray(data.subscribers)) throw new Error('format');
+        if (!confirm(`استيراد ${data.subscribers.length} مشترك؟ سيتم استبدال البيانات الحالية.`)) return;
+        subscribers = data.subscribers;
+        if (data.logo) {
+          localStorage.setItem(LOGO_KEY, data.logo);
+          $('logoImg').src = data.logo;
+          $('logoImg').style.display = 'block';
+          $('logoDefault').style.display = 'none';
+        }
+        save();
+        toast('📥 تم الاستيراد بنجاح');
+      } catch {
+        toast('⚠️ ملف غير صالح', true);
+      }
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  // ---------- Keyboard shortcuts ----------
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeLightbox(); closeModal(); closeExtendModal(); }
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+      e.preventDefault();
+      $('search').focus();
+    }
+  });
+
+  // ---------- Render ----------
+  function render() {
+    const q = $('search').value.toLowerCase().trim();
+    let filtered = subscribers.filter(s =>
+      s.name.toLowerCase().includes(q) || (s.phone || '').includes(q)
+    );
+    if (currentFilter !== 'all') {
+      filtered = filtered.filter(s => statusOf(s.endDate).cls === currentFilter);
+    }
+
+    // Sort
+    filtered.sort((a, b) => {
+      switch (currentSort) {
+        case 'newest': return (b.createdAt || 0) - (a.createdAt || 0);
+        case 'name':   return a.name.localeCompare(b.name, 'ar');
+        case 'paid':   return (Number(b.paid) || 0) - (Number(a.paid) || 0);
+        case 'urgent':
+        default:       return daysBetween(a.endDate) - daysBetween(b.endDate);
+      }
+    });
+
+    const total = subscribers.length;
+    const active = subscribers.filter(s => statusOf(s.endDate).cls === 'active').length;
+    const soon = subscribers.filter(s => statusOf(s.endDate).cls === 'soon').length;
+    const expired = subscribers.filter(s => statusOf(s.endDate).cls === 'expired').length;
+    const revenue = subscribers.reduce((sum, s) => sum + (Number(s.paid) || 0), 0);
+
+    const sel = f => currentFilter === f ? 'selected' : '';
+    $('stats').innerHTML =
+      `<div class="stat total ${sel('all')}" onclick="setFilter('all')"><div class="num">${total}</div><div class="lbl">الكل</div></div>` +
+      `<div class="stat active ${sel('active')}" onclick="setFilter('active')"><div class="num">${active}</div><div class="lbl">نشط</div></div>` +
+      `<div class="stat soon ${sel('soon')}" onclick="setFilter('soon')"><div class="num">${soon}</div><div class="lbl">ينتهي قريباً</div></div>` +
+      `<div class="stat expired ${sel('expired')}" onclick="setFilter('expired')"><div class="num">${expired}</div><div class="lbl">منتهي</div></div>` +
+      `<div class="stat revenue"><div class="num">${revenue.toFixed(2)} د.ج </div><div class="lbl">💰 إجمالي المداخيل</div></div>`;
+
+    if (filtered.length === 0) {
+      $('grid').innerHTML = `<div class="empty"><div class="icon">📋</div><div class="txt">${total === 0 ? 'لا يوجد مشتركون بعد. اضغط ➕ إضافة مشترك للبدء.' : 'لا نتائج مطابقة لبحثك.'}</div></div>`;
+      return;
+    }
+
+    $('grid').innerHTML = filtered.map(s => {
+      const st = statusOf(s.endDate);
+      const days = daysBetween(s.endDate);
+      const daysTxt = days < 0 ? `متأخر ${Math.abs(days)} يوم` : `متبقي ${days} يوم`;
+      const photoHtml = s.photo
+        ? `<img class="avatar" src="${esc(s.photo)}" alt="${esc(s.name)}" onclick="openLightbox('${esc(s.id)}')" />`
+        : `<div class="no-photo">👤</div>`;
+      return `
+        <div class="card">
+          <div class="top">
+            <div class="photo-wrap">${photoHtml}</div>
+            <div>
+              <h3>${esc(s.name)}</h3>
+              <div class="meta">${s.age ? esc(s.age) + ' سنة' : ''}</div>
+              <span class="badge ${st.cls}">${st.label}</span>
+            </div>
+          </div>
+          <div class="info">
+            ${s.phone ? `<div class="row-info"><span class="label">📞 الهاتف</span><span class="value">${esc(s.phone)}</span></div>` : ''}
+            <div class="row-info"><span class="label">📅 المدة</span><span class="value">${formatDuration(s.months, s.days)}</span></div>
+            <div class="row-info"><span class="label">🟢 البداية</span><span class="value">${formatDate(s.startDate)}</span></div>
+            <div class="row-info"><span class="label">🔴 النهاية</span><span class="value">${formatDate(s.endDate)}</span></div>
+            <div class="row-info"><span class="label">⏳ الأيام</span><span class="value">${daysTxt}</span></div>
+            <div class="row-info"><span class="label">💰 المدفوع</span><span class="value">${Number(s.paid).toFixed(2)} د.م</span></div>
+            ${s.notes ? `<div class="row-info"><span class="label">📝 ملاحظات</span><span class="value">${esc(s.notes)}</span></div>` : ''}
+          </div>
+          <div class="actions">
+            <button onclick="openExtend('${esc(s.id)}')">➕ تمديد</button>
+            <button class="secondary" onclick="openModal('${esc(s.id)}')">✏️ تعديل</button>
+            ${s.phone ? `<button class="whatsapp" onclick="whatsapp('${esc(s.id)}')" title="تذكير واتساب">💬</button>` : ''}
+            <button class="danger" onclick="remove('${esc(s.id)}')">🗑️</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  $('search').addEventListener('input', render);
+  render();
+</script>
+
+</body>
+</html>
